@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  HttpException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -15,15 +16,17 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
+  @Post('create')
   async create(@Body() createUserDto: CreateUserDto) {
-    const result = await this.usersService.create(createUserDto);
-    console.log(result);
-    
-    return {
-      message: 'Success',
-      data: result,
-    };
+    try {
+      const result = await this.usersService.create(createUserDto);
+      return {
+        message: 'Success',
+        data: result,
+      };
+    } catch (error) {
+      throw new HttpException(error.message, 400);
+    }
   }
 
   @Get()

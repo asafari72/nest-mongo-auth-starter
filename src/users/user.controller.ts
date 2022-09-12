@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -16,16 +17,21 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post('create')
+  @Post()
   async create(@Body() createUserDto: CreateUserDto) {
     try {
-      const result = await this.usersService.create(createUserDto);
+      await this.usersService.create(createUserDto);
       return {
         message: 'Success',
-        data: result,
       };
     } catch (error) {
-      throw new HttpException(error.message, 400);
+      if (error.code === 11000) {
+        console.log("|aa");
+        
+        throw new HttpException('User has exist', HttpStatus.BAD_REQUEST);
+      } else {
+        throw new HttpException(error.message, 400);
+      }
     }
   }
 

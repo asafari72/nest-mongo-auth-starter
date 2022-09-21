@@ -26,8 +26,6 @@ export class UsersController {
       };
     } catch (error) {
       if (error.code === 11000) {
-        console.log("|aa");
-        
         throw new HttpException('User has exist', HttpStatus.BAD_REQUEST);
       } else {
         throw new HttpException(error.message, 400);

@@ -15,41 +15,74 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
     try {
       await this.usersService.create(createUserDto);
       return {
-        message: 'Success',
+        message: 'User created.',
       };
     } catch (error) {
       if (error.code === 11000) {
         throw new HttpException('User has exist', HttpStatus.BAD_REQUEST);
       } else {
-        throw new HttpException(error.message, 400);
+        throw new HttpException(error.message, 500);
       }
     }
   }
 
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  async findAll() {
+    try {
+      const users = await this.usersService.findAll();
+      return {
+        message: "List recived.",
+        data: users
+      };
+    } catch (error) {
+      throw new HttpException(error.message, 500);
+
+    }
   }
 
   @Get(':id')
-  findById(@Param('id') id: string) {
-    return this.usersService.findById(id);
+  async findById(@Param('id') id: string) {
+    try {
+      const user = await this.usersService.findById(id);
+      return {
+        message: "User founded",
+        data: user
+      };
+    } catch (error) {
+      throw new HttpException(error.message, 500);
+    }
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    try {
+      await this.usersService.update(id, updateUserDto);
+      return {
+        message: "User updated.",
+      };
+    } catch (error) {
+      throw new HttpException(error.message, 500);
+    }
+
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(id);
+  async remove(@Param('id') id: string) {
+    try {
+      await this.usersService.remove(id);
+      return {
+        message: "User deleted."
+      }
+    } catch (error) {
+      throw new HttpException(error.message, 400);
+    }
+
   }
 }

@@ -20,6 +20,6 @@ const envFilePath: string = getEnvPath(`${__dirname}/common/envs`);
   ],
   controllers: [AppController],
   providers: [
-    { provide: 'APP_INTERCEPTOR', useClass: JSONResponseInterceptor },AppService],
+    { provide: 'APP_INTERCEPTOR', useClass: JSONResponseInterceptor }, AppService],
 })
 export class AppModule {}

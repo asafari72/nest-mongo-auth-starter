@@ -20,22 +20,12 @@ import { Action } from '../common/ability/ability.factory';
 import { AccessTokenGuard } from '../common/guards/accessToken.guard';
 
 @Controller('users')
+@UseGuards(AccessTokenGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
-  @Get('test')
-  @UseGuards(AccessTokenGuard, AbilitiesGuard)
-  @CheckAbilities({ action: Action.Delete, subject: User })
-  test() {
-    try {
-      return 'test ok'
-    } catch (error) {
-      throw new HttpException(error.message, 500);
-
-    }
-  }
-
-
+  @UseGuards(AbilitiesGuard)
+  @CheckAbilities({ action: Action.Manage, subject: User })
   @Post()
   async create(@Body() createUserDto: CreateUserDto) {
     try {
@@ -51,7 +41,8 @@ export class UsersController {
       }
     }
   }
-
+  @UseGuards(AbilitiesGuard)
+  @CheckAbilities({ action: Action.Manage, subject: User })
   @Get()
   async findAll() {
     try {
@@ -65,7 +56,8 @@ export class UsersController {
 
     }
   }
-
+  @UseGuards(AbilitiesGuard)
+  @CheckAbilities({ action: Action.Manage, subject: User })
   @Get(':id')
   async findById(@Param('id') id: string) {
     try {
@@ -78,7 +70,8 @@ export class UsersController {
       throw new HttpException(error.message, 500);
     }
   }
-
+  @UseGuards(AbilitiesGuard)
+  @CheckAbilities({ action: Action.Manage, subject: User })
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     try {
@@ -91,7 +84,8 @@ export class UsersController {
     }
 
   }
-
+  @UseGuards(AbilitiesGuard)
+  @CheckAbilities({ action: Action.Manage, subject: User })
   @Delete(':id')
   async remove(@Param('id') id: string) {
     try {

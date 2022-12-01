@@ -11,6 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { AuthDto } from './dto/auth.dto';
 import { UsersService } from '../users/users.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
+import { Roles } from '../users/schemas/user.schemas';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +19,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
-  ) {}
+  ) { }
   async signUp(createUserDto: CreateUserDto): Promise<any> {
     // Check if user exists
     const userExists = await this.usersService.findByUsername(
@@ -34,9 +35,9 @@ export class AuthService {
       ...createUserDto,
       password: hash,
     });
-    const tokens = await this.getTokens(newUser._id, newUser.username);
+    const tokens = await this.getTokens(newUser._id, newUser.username, newUser.roles);
     await this.updateRefreshToken(newUser._id, tokens.refreshToken);
-    return { message:'Signup successful.', data: tokens };
+    return { message: 'Signup successful.', data: tokens };
   }
 
   async signIn(data: AuthDto) {
@@ -47,9 +48,9 @@ export class AuthService {
     const passwordMatches = await argon2.verify(user.password, data.password);
     if (!passwordMatches)
       throw new BadRequestException('Password is incorrect');
-    const tokens = await this.getTokens(user._id, user.username);
+    const tokens = await this.getTokens(user._id, user.username, user.roles);
     await this.updateRefreshToken(user._id, tokens.refreshToken);
-    return { message:'Signin successful.', data: tokens };
+    return { message: 'Signin successful.', data: tokens };
   }
 
   async logout(userId: string) {
@@ -70,7 +71,7 @@ export class AuthService {
       refreshToken,
     );
     if (!refreshTokenMatches) throw new ForbiddenException('Access Denied');
-    const tokens = await this.getTokens(user.id, user.username);
+    const tokens = await this.getTokens(user.id, user.username, user.roles);
     await this.updateRefreshToken(user.id, tokens.refreshToken);
     return { message: 'Token generated.', data: tokens };
   }
@@ -86,12 +87,13 @@ export class AuthService {
     });
   }
 
-  async getTokens(userId: string, username: string) {
+  async getTokens(userId: string, username: string, roles: Roles[]) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
           sub: userId,
           username,
+          roles
         },
         {
           secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
@@ -102,6 +104,7 @@ export class AuthService {
         {
           sub: userId,
           username,
+          roles
         },
         {
           secret: this.configService.get<string>('JWT_REFRESH_SECRET'),

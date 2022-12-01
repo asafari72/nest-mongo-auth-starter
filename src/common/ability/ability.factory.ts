@@ -26,9 +26,7 @@ export class AbilityFactory {
     async defineAbility(user: User) {
         // define rules
         const { can, cannot, build } = new AbilityBuilder(PureAbility as AbilityClass<AppAbility>)
-        debugger
-        const findedUser = await this.userModel.findOne({ username: user.username });
-        if (findedUser.roles.includes('Admin')) {
+        if (user.roles.includes('ADMIN')) {
             // Admin can do anything
             can(Action.Manage, 'all')
         } else {
@@ -38,7 +36,6 @@ export class AbilityFactory {
         return build({
             detectSubjectType: (item) =>
                 item.constructor as ExtractSubjectType<Subjects>
-
         })
 
     }

@@ -4,12 +4,14 @@ import { Model } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User, UserDocument } from './schemas/user.schemas';
-
+import * as argon2 from 'argon2';
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async create(createUserDto: CreateUserDto): Promise<UserDocument> {
+    const pass = createUserDto.password;
+    createUserDto.password = await argon2.hash(pass)
     const createdUser = new this.userModel(createUserDto);
     return createdUser.save();
   }

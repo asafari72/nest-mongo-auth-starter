@@ -11,13 +11,11 @@ export class AbilitiesGuard implements CanActivate {
         private caslAbilityFactior: AbilityFactory
     ) { }
     async canActivate(context: ExecutionContext): Promise<boolean> {
-        console.log(this.reflector);
 
         const rules = this.reflector.get<RequiredRule[]>(CHECK_ABILITY, context.getHandler()) || [];
 
         const { user } = context.switchToHttp().getRequest();
-        debugger
-        const ability = this.caslAbilityFactior.defineAbility(user);
+        const ability = await this.caslAbilityFactior.defineAbility(user);
 
         try {
             rules.forEach((rule) =>
